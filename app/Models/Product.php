@@ -21,6 +21,11 @@ class Product extends Model
         'is_active',
     ];
 
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
+
     /**
      * Restock notification subscriptions linked to this product.
      */

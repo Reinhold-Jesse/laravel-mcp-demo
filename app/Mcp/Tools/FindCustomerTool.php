@@ -9,12 +9,12 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Tool;
 
-#[Description('Sucht Kunden nach Namen')]
+#[Description('Sucht Kunden nach Namen oder E-Mail-Adresse')]
 class FindCustomerTool extends Tool
 {
     public string $name = 'find_customer';
 
-    public string $description = 'Sucht Kunden nach Namen';
+    public string $description = 'Sucht Kunden nach Namen oder E-Mail-Adresse';
 
     /**
      * Handle the tool request.
@@ -22,17 +22,26 @@ class FindCustomerTool extends Tool
     public function handle(Request $request): Response
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'query' => ['nullable', 'string', 'max:255', 'required_without:name'],
+            'name' => ['nullable', 'string', 'max:255', 'required_without:query'],
         ]);
 
-        $name = $data['name'];
+        $query = trim((string) ($data['query'] ?? $data['name'] ?? ''));
 
-        $customers = Customer::where('name', 'like', "%{$name}%")
-            ->get()
+        $customers = Customer::query()
+            ->where(function ($builder) use ($query) {
+                $builder
+                    ->where('name', 'like', "%{$query}%")
+                    ->orWhere('email', 'like', "%{$query}%");
+            })
+            ->orderBy('name')
+            ->get(['id', 'name', 'email'])
             ->toArray();
 
         return Response::json([
             'success' => true,
+            'count' => count($customers),
+            'query' => $query,
             'data' => $customers,
         ]);
     }
@@ -45,7 +54,9 @@ class FindCustomerTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'name' => $schema->string(),
+            'query' => $schema->string()
+                ->description('Name, Namensanteil oder E-Mail-Adresse des Kunden')
+                ->required(),
         ];
     }
 }

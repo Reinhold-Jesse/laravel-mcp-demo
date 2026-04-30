@@ -26,10 +26,15 @@ class ListProductsTool extends Tool
             ->orderBy('name')
             ->get(['id', 'name', 'sku', 'description', 'price', 'stock_quantity'])
             ->map(function (Product $product): array {
-                $isOutOfStock = $product->stock_quantity === 0;
+                $isOutOfStock = $product->stock_quantity <= 0;
 
                 return [
-                    ...$product->toArray(),
+                    'product_id' => $product->id,
+                    'name' => $product->name,
+                    'sku' => $product->sku,
+                    'description' => $product->description,
+                    'price' => $product->price,
+                    'stock_quantity' => $product->stock_quantity,
                     'is_out_of_stock' => $isOutOfStock,
                     'restock_notification' => $isOutOfStock
                         ? [

@@ -23,7 +23,7 @@ class CreateCustomerTool extends Tool
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['nullable', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255'],
         ]);
 
         $customer = Customer::create($data);
@@ -42,8 +42,11 @@ class CreateCustomerTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'name' => $schema->string(),
-            'email' => $schema->string(),
+            'name' => $schema->string()
+                ->description('Name des Kunden')
+                ->required(),
+            'email' => $schema->string()
+                ->description('E-Mail-Adresse des Kunden'),
         ];
     }
 }

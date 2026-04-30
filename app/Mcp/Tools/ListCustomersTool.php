@@ -23,7 +23,7 @@ class ListCustomersTool extends Tool
     {
         $customers = Customer::query()
             ->orderBy('name')
-            ->get()
+            ->get(['id', 'name', 'email'])
             ->toArray();
 
         return Response::json([
@@ -43,4 +43,3 @@ class ListCustomersTool extends Tool
         return [];
     }
 }
-

@@ -18,4 +18,9 @@ class Customer extends Model
         'name',
         'email',
     ];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
 }

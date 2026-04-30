@@ -9,6 +9,7 @@ use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Tool;
+use Throwable;
 
 #[Description('Sendet eine Nachricht an einen Kunden per E-Mail')]
 class SendCustomerNotificationTool extends Tool
@@ -37,7 +38,17 @@ class SendCustomerNotificationTool extends Tool
             ]);
         }
 
-        $customer->notify(new CustomerMessageNotification($data['message']));
+        try {
+            $customer->notifyNow(new CustomerMessageNotification($data['message']));
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return Response::json([
+                'success' => false,
+                'error' => 'Die Benachrichtigung konnte nicht versendet werden.',
+                'customer' => $customer->only(['id', 'name', 'email']),
+            ]);
+        }
 
         return Response::json([
             'success' => true,
@@ -54,8 +65,12 @@ class SendCustomerNotificationTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'customer_id' => $schema->integer(),
-            'message' => $schema->string(),
+            'customer_id' => $schema->integer()
+                ->description('ID des Kunden')
+                ->required(),
+            'message' => $schema->string()
+                ->description('Nachrichtentext mit maximal 2000 Zeichen')
+                ->required(),
         ];
     }
 }

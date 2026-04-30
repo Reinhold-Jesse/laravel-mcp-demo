@@ -3,7 +3,5 @@
         "cursor"
     ],
     "cloud": false,
-    "mcp": true,
-    "nightwatch": false,
-    "sail": false
+    "guidelines": true
 }

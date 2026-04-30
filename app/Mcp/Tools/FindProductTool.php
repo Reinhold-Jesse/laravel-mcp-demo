@@ -69,7 +69,9 @@ class FindProductTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'query' => $schema->string(),
+            'query' => $schema->string()
+                ->description('Name oder SKU des Produkts')
+                ->required(),
         ];
     }
 }
