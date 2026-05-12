@@ -30,6 +30,14 @@ class MenuItemRepository
             ->first();
     }
 
+    public function findActiveByRouteName(string $routeName): ?Model
+    {
+        return $this->query()
+            ->where('route_name', $routeName)
+            ->where('is_active', true)
+            ->first();
+    }
+
     /**
      * @return Collection<int, Model>
      */
@@ -84,11 +92,25 @@ class MenuItemRepository
     private function fetchActiveItems(): Collection
     {
         return $this->query()
-            ->select(['id', 'parent_id', 'label', 'slug', 'sort_order', 'is_active'])
+            ->select($this->activeItemColumns())
             ->where('is_active', true)
             ->orderBy('sort_order')
             ->orderBy('label')
             ->get();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function activeItemColumns(): array
+    {
+        $columns = ['id', 'parent_id', 'label', 'slug', 'sort_order', 'is_active'];
+
+        if (Schema::hasColumn($this->table(), 'route_name')) {
+            $columns[] = 'route_name';
+        }
+
+        return $columns;
     }
 
     private function activeItemsCacheKey(): string
@@ -135,8 +157,14 @@ class MenuItemRepository
      */
     private function containsOnlyAttributeArrays(array $items): bool
     {
+        $requiresRouteName = Schema::hasColumn($this->table(), 'route_name');
+
         foreach ($items as $item) {
             if (! is_array($item)) {
+                return false;
+            }
+
+            if ($requiresRouteName && ! array_key_exists('route_name', $item)) {
                 return false;
             }
         }

@@ -43,14 +43,30 @@ class MenuItemForm
                     ->live(onBlur: true)
                     ->afterStateUpdated(function (Get $get, Set $set, ?string $state): void {
                         if (filled($get('slug'))) {
+                            if (blank($get('route_name'))) {
+                                $set('route_name', MenuItem::routeNameFromTitle($state ?? ''));
+                            }
+
                             return;
                         }
 
                         $set('slug', Str::slug($state ?? ''));
+
+                        if (blank($get('route_name'))) {
+                            $set('route_name', MenuItem::routeNameFromTitle($state ?? ''));
+                        }
                     }),
                 TextInput::make('slug')
                     ->required()
                     ->unique(ignoreRecord: true)
+                    ->maxLength(255),
+                TextInput::make('route_name')
+                    ->label('Route name')
+                    ->nullable()
+                    ->unique(ignoreRecord: true)
+                    ->regex('/^[A-Za-z0-9._-]+$/')
+                    ->placeholder('pages.about')
+                    ->helperText('Leer lassen, um den Namen aus dem Titel zu erzeugen.')
                     ->maxLength(255),
                 TextInput::make('view')
                     ->required()

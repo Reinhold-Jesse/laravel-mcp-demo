@@ -17,6 +17,8 @@ class MenuItemInfolist
                     ->placeholder('-'),
                 TextEntry::make('label'),
                 TextEntry::make('slug'),
+                TextEntry::make('route_name')
+                    ->label('Route name'),
                 TextEntry::make('view'),
                 TextEntry::make('sort_order')
                     ->numeric(),

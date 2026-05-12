@@ -24,6 +24,9 @@ class MenuItemsTable
                     ->searchable(),
                 TextColumn::make('slug')
                     ->searchable(),
+                TextColumn::make('route_name')
+                    ->label('Route name')
+                    ->searchable(),
                 TextColumn::make('view')
                     ->searchable(),
                 TextColumn::make('sort_order')

@@ -44,18 +44,36 @@
                     </div>
 
                     @if ($selectedMenuItem !== null)
-                        <span @class([
-                            'inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ring-1',
-                            'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-400/10 dark:text-emerald-300 dark:ring-emerald-400/20' => $selectedMenuItem->is_active,
-                            'bg-slate-100 text-slate-600 ring-slate-300 dark:bg-white/10 dark:text-slate-300 dark:ring-white/10' => ! $selectedMenuItem->is_active,
-                        ])>
+                        <div class="flex flex-col items-end gap-2">
                             <span @class([
-                                'size-2 rounded-full',
-                                'bg-emerald-500' => $selectedMenuItem->is_active,
-                                'bg-slate-400' => ! $selectedMenuItem->is_active,
-                            ])></span>
-                            {{ $selectedMenuItem->is_active ? 'Aktiv' : 'Inaktiv' }}
-                        </span>
+                                'inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ring-1',
+                                'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-400/10 dark:text-emerald-300 dark:ring-emerald-400/20' => $selectedMenuItem->is_active,
+                                'bg-slate-100 text-slate-600 ring-slate-300 dark:bg-white/10 dark:text-slate-300 dark:ring-white/10' => ! $selectedMenuItem->is_active,
+                            ])>
+                                <span @class([
+                                    'size-2 rounded-full',
+                                    'bg-emerald-500' => $selectedMenuItem->is_active,
+                                    'bg-slate-400' => ! $selectedMenuItem->is_active,
+                                ])></span>
+                                {{ $selectedMenuItem->is_active ? 'Aktiv' : 'Inaktiv' }}
+                            </span>
+
+                            @if ($selectedMenuItem->is_active)
+                                <a
+                                    href="{{ $this->urlFor($selectedMenuItem) }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title="Seite in neuem Fenster öffnen"
+                                    aria-label="Seite in neuem Fenster öffnen"
+                                    class="inline-flex size-7 items-center justify-center rounded-lg text-primary-600 ring-1 ring-primary-600/20 transition duration-200 hover:bg-primary-50 hover:text-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 motion-reduce:transition-none dark:text-primary-300 dark:ring-primary-400/30 dark:hover:bg-primary-400/10 dark:hover:text-primary-200"
+                                >
+                                    <svg class="size-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path d="M11.25 3a.75.75 0 0 0 0 1.5h2.19l-5.22 5.22a.75.75 0 0 0 1.06 1.06l5.22-5.22v2.19a.75.75 0 0 0 1.5 0v-4A.75.75 0 0 0 15.25 3h-4Z" />
+                                        <path d="M5.5 5A2.5 2.5 0 0 0 3 7.5v7A2.5 2.5 0 0 0 5.5 17h7a2.5 2.5 0 0 0 2.5-2.5v-3a.75.75 0 0 0-1.5 0v3a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3a.75.75 0 0 0 0-1.5h-3Z" />
+                                    </svg>
+                                </a>
+                            @endif
+                        </div>
                     @endif
                 </div>
             </div>
@@ -142,6 +160,55 @@
                             class="inline-flex cursor-pointer items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold text-primary-700 ring-1 ring-primary-600/20 transition-colors duration-200 hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 data-loading:pointer-events-none data-loading:opacity-60 motion-reduce:transition-none dark:text-primary-300 dark:ring-primary-400/30 dark:hover:bg-primary-400/10 dark:focus-visible:ring-offset-gray-950"
                         >
                             Slug neu
+                        </button>
+                    </div>
+
+                    <div class="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
+                        <label for="menu-item-route-name" class="space-y-2">
+                            <span class="mb-1 flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
+                                Route-Name
+                                <span class="group relative inline-flex items-center">
+                                    <button
+                                        type="button"
+                                        class="grid size-5 cursor-help place-items-center text-primary-600 transition duration-200 hover:scale-110 hover:text-primary-500 focus-visible:outline-none focus-visible:text-primary-500 motion-reduce:transition-none dark:text-primary-300 dark:hover:text-primary-200 dark:focus-visible:text-primary-200"
+                                        aria-describedby="menu-item-route-name-help"
+                                    >
+                                        <svg class="size-4.5 drop-shadow-sm" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                            <path fill-rule="evenodd" d="M18 10A8 8 0 1 1 2 10a8 8 0 0 1 16 0ZM9 8a1 1 0 1 0 2 0 1 1 0 0 0-2 0Zm.25 3.25a.75.75 0 0 1 1.5 0v3a.75.75 0 0 1-1.5 0v-3Z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                    <span
+                                        id="menu-item-route-name-help"
+                                        role="tooltip"
+                                        class="pointer-events-none absolute left-full top-1/2 z-50 ml-2 w-max max-w-64 -translate-y-1/2 rounded-lg bg-slate-950 px-3 py-2 text-xs font-normal leading-5 text-white opacity-0 shadow-lg ring-1 ring-white/10 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100 motion-reduce:transition-none dark:bg-white dark:text-slate-950 dark:ring-slate-950/10"
+                                    >
+                                        Leer lassen, um den Namen aus dem Titel zu erzeugen.
+                                    </span>
+                                </span>
+                            </span>
+                            <x-filament::input.wrapper
+                                :valid="! $errors->has('form.route_name')"
+                                x-on:focus-input.stop="$el.querySelector('input')?.focus()"
+                            >
+                                <x-filament::input
+                                    id="menu-item-route-name"
+                                    type="text"
+                                    wire:model.blur="form.route_name"
+                                    placeholder="pages.about"
+                                    class="font-[Fira_Code]"
+                                />
+                            </x-filament::input.wrapper>
+                            @error('form.route_name')
+                                <span class="text-sm text-danger-600 dark:text-danger-400">{{ $message }}</span>
+                            @enderror
+                        </label>
+
+                        <button
+                            type="button"
+                            wire:click="regenerateRouteName"
+                            class="inline-flex cursor-pointer items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold text-primary-700 ring-1 ring-primary-600/20 transition-colors duration-200 hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 data-loading:pointer-events-none data-loading:opacity-60 motion-reduce:transition-none dark:text-primary-300 dark:ring-primary-400/30 dark:hover:bg-primary-400/10 dark:focus-visible:ring-offset-gray-950"
+                        >
+                            Route neu
                         </button>
                     </div>
 

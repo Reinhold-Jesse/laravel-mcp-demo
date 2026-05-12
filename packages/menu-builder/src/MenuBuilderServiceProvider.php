@@ -5,6 +5,7 @@ namespace LaravelMcpDemo\MenuBuilder;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use LaravelMcpDemo\MenuBuilder\Filament\Pages\MenuBuilder as MenuBuilderPage;
 use LaravelMcpDemo\MenuBuilder\Http\Controllers\DynamicPageController;
@@ -60,6 +61,8 @@ class MenuBuilderServiceProvider extends ServiceProvider
 
     private function registerRoutes(): void
     {
+        $this->registerNamedMenuItemRoutes();
+
         Route::middleware('web')->group(function (): void {
             Route::get('/', DynamicPageController::class)
                 ->defaults('menuBuilderSlug', '/')
@@ -68,6 +71,45 @@ class MenuBuilderServiceProvider extends ServiceProvider
             Route::fallback(DynamicPageController::class)
                 ->name('menu-builder.pages.show');
         });
+    }
+
+    private function registerNamedMenuItemRoutes(): void
+    {
+        if (! $this->canQueryMenuItems()) {
+            return;
+        }
+
+        app(MenuItemRepository::class)
+            ->activeItems()
+            ->each(function (Model $menuItem): void {
+                $this->registerNamedMenuItemRoute($menuItem);
+            });
+    }
+
+    private function registerNamedMenuItemRoute(Model $menuItem): void
+    {
+        $routeName = (string) $menuItem->getAttribute('route_name');
+
+        if (! (bool) $menuItem->getAttribute('is_active') || blank($routeName) || Route::has($routeName)) {
+            return;
+        }
+
+        $slug = (string) $menuItem->getAttribute('slug');
+        $uri = $slug === '/' ? '/' : trim($slug, '/');
+
+        Route::middleware('web')
+            ->get($uri, DynamicPageController::class)
+            ->defaults('menuBuilderSlug', $slug)
+            ->name($routeName);
+
+        Route::getRoutes()->refreshNameLookups();
+    }
+
+    private function canQueryMenuItems(): bool
+    {
+        $table = app(MenuItemRepository::class)->table();
+
+        return Schema::hasTable($table) && Schema::hasColumn($table, 'route_name');
     }
 
     private function registerModelCacheInvalidation(): void
@@ -83,7 +125,11 @@ class MenuBuilderServiceProvider extends ServiceProvider
             app(MenuItemRepository::class)->forgetActiveItems();
         };
 
-        $modelClass::saved($clearCache);
+        $modelClass::saved(function (Model $menuItem) use ($clearCache): void {
+            $clearCache();
+            $this->registerNamedMenuItemRoute($menuItem);
+        });
+
         $modelClass::deleted($clearCache);
     }
 }

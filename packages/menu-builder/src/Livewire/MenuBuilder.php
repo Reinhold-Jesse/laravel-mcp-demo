@@ -9,8 +9,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use LaravelMcpDemo\MenuBuilder\Models\MenuItem;
 use LaravelMcpDemo\MenuBuilder\Support\MenuBuilderViewResolver;
 use LaravelMcpDemo\MenuBuilder\Support\MenuItemRepository;
 use Livewire\Component;
@@ -20,12 +22,13 @@ class MenuBuilder extends Component
     public ?int $selectedMenuItemId = null;
 
     /**
-     * @var array{parent_id: int|null, label: string, slug: string, view: string, is_active: bool}
+     * @var array{parent_id: int|null, label: string, slug: string, route_name: string, view: string, is_active: bool}
      */
     public array $form = [
         'parent_id' => null,
         'label' => '',
         'slug' => '',
+        'route_name' => '',
         'view' => '',
         'is_active' => true,
     ];
@@ -51,6 +54,23 @@ class MenuBuilder extends Component
             'parentOptions' => $this->getParentOptions(),
             'selectedMenuItem' => $this->getSelectedMenuItem(),
         ]);
+    }
+
+    public function urlFor(Model $menuItem): string
+    {
+        $routeName = (string) $menuItem->getAttribute('route_name');
+
+        if (filled($routeName) && Route::has($routeName)) {
+            return route($routeName);
+        }
+
+        $slug = (string) $menuItem->getAttribute('slug');
+
+        if ($slug === '/') {
+            return url('/');
+        }
+
+        return url($slug);
     }
 
     public function selectMenuItem(int $menuItemId): void
@@ -86,6 +106,10 @@ class MenuBuilder extends Component
 
         $this->form['parent_id'] = blank($this->form['parent_id']) ? null : (int) $this->form['parent_id'];
         $this->form['slug'] = $this->normalizeSlug($this->form['slug']);
+        $routeName = MenuItem::normalizeRouteName($this->form['route_name']);
+        $this->form['route_name'] = $routeName === ''
+            ? MenuItem::makeUniqueRouteNameFromTitle($this->form['label'], $this->selectedMenuItemId)
+            : $routeName;
         $this->form['view'] = trim($this->form['view']);
         $this->form['is_active'] = (bool) $this->form['is_active'];
 
@@ -104,7 +128,7 @@ class MenuBuilder extends Component
             return;
         }
 
-        /** @var array{form: array{parent_id: int|null, label: string, slug: string, view: string, is_active: bool}} $validated */
+        /** @var array{form: array{parent_id: int|null, label: string, slug: string, route_name: string, view: string, is_active: bool}} $validated */
         $validated = $this->validate([
             'form.parent_id' => ['nullable', 'integer', 'exists:'.$this->menuItemsTable().',id'],
             'form.label' => ['required', 'string', 'max:255'],
@@ -113,6 +137,13 @@ class MenuBuilder extends Component
                 'string',
                 'max:255',
                 Rule::unique($this->menuItemsTable(), 'slug')->ignore($this->selectedMenuItemId),
+            ],
+            'form.route_name' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[A-Za-z0-9._-]+$/',
+                Rule::unique($this->menuItemsTable(), 'route_name')->ignore($this->selectedMenuItemId),
             ],
             'form.view' => ['required', 'string', 'max:255', app(MenuBuilderViewResolver::class)->validationRule()],
             'form.is_active' => ['boolean'],
@@ -179,6 +210,18 @@ class MenuBuilder extends Component
         );
     }
 
+    public function regenerateRouteName(): void
+    {
+        $this->authorizeManageMenu();
+
+        $label = $this->form['label'] ?: 'Neue Seite';
+
+        $this->form['route_name'] = MenuItem::makeUniqueRouteNameFromTitle(
+            $label,
+            $this->selectedMenuItemId,
+        );
+    }
+
     public function moveMenuItem(int|string $menuItemId, int|string $position, int|string|null $parentId = null): void
     {
         $this->authorizeManageMenu();
@@ -230,6 +273,7 @@ class MenuBuilder extends Component
 
         $this->selectedMenuItemId = (int) $menuItem->getKey();
         $this->loadSelectedMenuItem();
+        $this->form['route_name'] = '';
 
         Notification::make()
             ->title('Menüpunkt erstellt')
@@ -246,6 +290,7 @@ class MenuBuilder extends Component
                 'parent_id' => null,
                 'label' => '',
                 'slug' => '',
+                'route_name' => '',
                 'view' => '',
                 'is_active' => true,
             ];
@@ -257,6 +302,7 @@ class MenuBuilder extends Component
             'parent_id' => $this->parentId($menuItem),
             'label' => (string) $menuItem->getAttribute('label'),
             'slug' => (string) $menuItem->getAttribute('slug'),
+            'route_name' => (string) $menuItem->getAttribute('route_name'),
             'view' => (string) $menuItem->getAttribute('view'),
             'is_active' => (bool) $menuItem->getAttribute('is_active'),
         ];
@@ -272,13 +318,13 @@ class MenuBuilder extends Component
     }
 
     /**
-     * @return array<int, array{id: int, parent_id: int|null, label: string, slug: string, view: string, is_active: bool, children: array<int, mixed>}>
+     * @return array<int, array{id: int, parent_id: int|null, label: string, slug: string, route_name: string, view: string, is_active: bool, children: array<int, mixed>}>
      */
     private function getMenuTree(): array
     {
         /** @var Collection<int, Model> $menuItems */
         $menuItems = $this->query()
-            ->select(['id', 'parent_id', 'label', 'slug', 'view', 'sort_order', 'is_active'])
+            ->select(['id', 'parent_id', 'label', 'slug', 'route_name', 'view', 'sort_order', 'is_active'])
             ->orderBy('sort_order')
             ->orderBy('label')
             ->get();
@@ -288,7 +334,7 @@ class MenuBuilder extends Component
 
     /**
      * @param  Collection<string, Collection<int, Model>>  $menuItemsByParent
-     * @return array<int, array{id: int, parent_id: int|null, label: string, slug: string, view: string, is_active: bool, children: array<int, mixed>}>
+     * @return array<int, array{id: int, parent_id: int|null, label: string, slug: string, route_name: string, view: string, is_active: bool, children: array<int, mixed>}>
      */
     private function buildMenuTree(Collection $menuItemsByParent, ?int $parentId = null): array
     {
@@ -299,6 +345,7 @@ class MenuBuilder extends Component
                 'parent_id' => $this->parentId($menuItem),
                 'label' => (string) $menuItem->getAttribute('label'),
                 'slug' => (string) $menuItem->getAttribute('slug'),
+                'route_name' => (string) $menuItem->getAttribute('route_name'),
                 'view' => (string) $menuItem->getAttribute('view'),
                 'is_active' => (bool) $menuItem->getAttribute('is_active'),
                 'children' => $this->buildMenuTree($menuItemsByParent, (int) $menuItem->getKey()),

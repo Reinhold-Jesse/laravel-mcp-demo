@@ -42,16 +42,17 @@ test('menu item seeder creates fifty active menu entries', function () {
         ->where('slug', 'products')
         ->firstOrFail();
 
+    $hardware = MenuItem::query()
+        ->where('slug', 'products/hardware')
+        ->firstOrFail();
+
     expect(MenuItem::query()->count())->toBe(50)
         ->and(MenuItem::query()->active()->count())->toBe(50)
+        ->and($products->route_name)->toBe('products')
         ->and($products->children)->toHaveCount(6)
-        ->and(
-            MenuItem::query()
-                ->where('slug', 'products/hardware')
-                ->firstOrFail()
-                ->parent
-                ->is($products)
-        )->toBeTrue();
+        ->and($hardware->route_name)->toBe('products.hardware')
+        ->and($hardware->view)->toBe('pages.dynamic')
+        ->and($hardware->parent->is($products))->toBeTrue();
 });
 
 test('menu items are registered in the settings cluster', function () {

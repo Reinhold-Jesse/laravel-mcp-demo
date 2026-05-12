@@ -19,6 +19,9 @@ return new class extends Migration
                 ->cascadeOnDelete();
             $table->string('label');
             $table->string('slug')->unique();
+            $table->string('route_name')
+                ->nullable()
+                ->unique();
             $table->string('view');
             $table->unsignedInteger('sort_order')->default(0);
             $table->boolean('is_active')->default(true);

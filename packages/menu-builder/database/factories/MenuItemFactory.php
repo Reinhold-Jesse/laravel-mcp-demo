@@ -26,6 +26,7 @@ class MenuItemFactory extends Factory
             'parent_id' => null,
             'label' => Str::title($label),
             'slug' => Str::slug($label),
+            'route_name' => MenuItem::routeNameFromTitle($label),
             'view' => 'pages.dynamic',
             'sort_order' => fake()->numberBetween(0, 100),
             'is_active' => true,

@@ -5,6 +5,7 @@ namespace LaravelMcpDemo\MenuBuilder\Livewire;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Route;
 use LaravelMcpDemo\MenuBuilder\Support\MenuItemRepository;
 use Livewire\Component;
 
@@ -17,8 +18,12 @@ class MenuNavigation extends Component
         ]);
     }
 
-    public function urlFor(string $slug): string
+    public function urlFor(string $slug, ?string $routeName = null): string
     {
+        if (filled($routeName) && Route::has($routeName)) {
+            return route($routeName);
+        }
+
         if ($slug === '/') {
             return url('/');
         }
@@ -27,7 +32,7 @@ class MenuNavigation extends Component
     }
 
     /**
-     * @return array<int, array{id: int, parent_id: int|null, label: string, slug: string, children: array<int, mixed>}>
+     * @return array<int, array{id: int, parent_id: int|null, label: string, slug: string, route_name: string, children: array<int, mixed>}>
      */
     private function getMenuTree(): array
     {
@@ -38,7 +43,7 @@ class MenuNavigation extends Component
 
     /**
      * @param  Collection<string, Collection<int, Model>>  $menuItemsByParent
-     * @return array<int, array{id: int, parent_id: int|null, label: string, slug: string, children: array<int, mixed>}>
+     * @return array<int, array{id: int, parent_id: int|null, label: string, slug: string, route_name: string, children: array<int, mixed>}>
      */
     private function buildMenuTree(Collection $menuItemsByParent, ?int $parentId = null): array
     {
@@ -49,6 +54,7 @@ class MenuNavigation extends Component
                 'parent_id' => $this->parentId($menuItem),
                 'label' => (string) $menuItem->getAttribute('label'),
                 'slug' => (string) $menuItem->getAttribute('slug'),
+                'route_name' => (string) $menuItem->getAttribute('route_name'),
                 'children' => $this->buildMenuTree($menuItemsByParent, (int) $menuItem->getKey()),
             ])
             ->values()

@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
 use LaravelMcpDemo\MenuBuilder\Database\Seeders\MenuItemSeeder;
 use LaravelMcpDemo\MenuBuilder\Livewire\MenuNavigation;
@@ -34,6 +35,36 @@ test('active menu items resolve to dynamic pages', function () {
         ->assertSee('Audits')
         ->assertSee('services/audits')
         ->assertSee('pages.dynamic');
+});
+
+test('active menu items register named routes', function () {
+    MenuItem::factory()->create([
+        'label' => 'Dokumentation',
+        'slug' => 'docs',
+        'route_name' => 'docs.index',
+        'view' => 'pages.dynamic',
+        'is_active' => true,
+    ]);
+
+    expect(Route::has('docs.index'))->toBeTrue()
+        ->and(route('docs.index', [], false))->toBe('/docs');
+
+    $this->get(route('docs.index'))
+        ->assertSuccessful()
+        ->assertSee('Dokumentation')
+        ->assertSee('docs');
+});
+
+test('route names are generated from labels when missing', function () {
+    $menuItem = MenuItem::factory()->create([
+        'label' => 'Über uns',
+        'slug' => 'company/about',
+        'route_name' => null,
+    ]);
+
+    expect($menuItem->refresh()->route_name)->toBe('uber.uns')
+        ->and(Route::has('uber.uns'))->toBeTrue()
+        ->and(route('uber.uns', [], false))->toBe('/company/about');
 });
 
 test('root resolves through a slash slug stored in the database', function () {
@@ -153,6 +184,19 @@ test('menu navigation links slash slug to the root url', function () {
     Livewire::test(MenuNavigation::class)
         ->assertSee('Home')
         ->assertSee('href="'.url('/').'"', false);
+});
+
+test('menu navigation links route names when available', function () {
+    MenuItem::factory()->create([
+        'label' => 'Dokumentation',
+        'slug' => 'docs',
+        'route_name' => 'docs.index',
+        'sort_order' => 0,
+    ]);
+
+    Livewire::test(MenuNavigation::class)
+        ->assertSee('Dokumentation')
+        ->assertSee('href="'.route('docs.index').'"', false);
 });
 
 test('menu item repository recovers from stale invalid cached navigation data', function () {

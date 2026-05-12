@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 use LaravelMcpDemo\MenuBuilder\Database\Factories\MenuItemFactory;
 
 class MenuItem extends Model
@@ -23,6 +24,7 @@ class MenuItem extends Model
         'parent_id',
         'label',
         'slug',
+        'route_name',
         'view',
         'sort_order',
         'is_active',
@@ -46,6 +48,62 @@ class MenuItem extends Model
     protected static function newFactory(): MenuItemFactory
     {
         return MenuItemFactory::new();
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $menuItem): void {
+            $routeName = self::normalizeRouteName((string) $menuItem->getAttribute('route_name'));
+
+            if ($routeName === '') {
+                $routeName = self::makeUniqueRouteNameFromTitle(
+                    (string) $menuItem->getAttribute('label'),
+                    $menuItem->exists ? (int) $menuItem->getKey() : null,
+                );
+            }
+
+            $menuItem->setAttribute('route_name', $routeName);
+        });
+    }
+
+    public static function makeUniqueRouteNameFromTitle(string $title, ?int $ignoreMenuItemId = null): string
+    {
+        return self::makeUniqueRouteName(self::routeNameFromTitle($title), $ignoreMenuItemId);
+    }
+
+    public static function routeNameFromTitle(string $title): string
+    {
+        $routeName = self::normalizeRouteName(Str::slug($title, '.'));
+
+        return $routeName === '' ? 'seite' : $routeName;
+    }
+
+    public static function normalizeRouteName(string $routeName): string
+    {
+        return collect(explode('.', str_replace(['/', '\\'], '.', $routeName)))
+            ->map(fn (string $segment): string => Str::slug($segment))
+            ->filter()
+            ->implode('.');
+    }
+
+    private static function makeUniqueRouteName(string $routeName, ?int $ignoreMenuItemId = null): string
+    {
+        $baseRouteName = self::normalizeRouteName($routeName);
+        $baseRouteName = $baseRouteName === '' ? 'seite' : $baseRouteName;
+        $candidate = $baseRouteName;
+        $counter = 2;
+
+        while (
+            self::query()
+                ->where('route_name', $candidate)
+                ->when($ignoreMenuItemId, fn (Builder $query): Builder => $query->whereKeyNot($ignoreMenuItemId))
+                ->exists()
+        ) {
+            $candidate = "{$baseRouteName}.{$counter}";
+            $counter++;
+        }
+
+        return $candidate;
     }
 
     /**

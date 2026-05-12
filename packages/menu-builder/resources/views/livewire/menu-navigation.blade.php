@@ -3,7 +3,7 @@
         @foreach ($menuTree as $item)
             <li wire:key="menu-navigation-item-{{ $item['id'] }}" class="group relative">
                 <a
-                    href="{{ $this->urlFor($item['slug']) }}"
+                    href="{{ $this->urlFor($item['slug'], $item['route_name']) }}"
                     class="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 transition-colors duration-200 hover:bg-primary-50 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 motion-reduce:transition-none dark:text-slate-200 dark:hover:bg-primary-400/10 dark:hover:text-primary-200"
                 >
                     {{ $item['label'] }}
@@ -21,11 +21,11 @@
                             @foreach ($item['children'] as $child)
                                 <li wire:key="menu-navigation-child-{{ $child['id'] }}">
                                     <a
-                                        href="{{ $this->urlFor($child['slug']) }}"
+                                        href="{{ $this->urlFor($child['slug'], $child['route_name']) }}"
                                         class="block rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition-colors duration-200 hover:bg-primary-50 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 motion-reduce:transition-none dark:text-slate-300 dark:hover:bg-primary-400/10 dark:hover:text-primary-200"
                                     >
                                         <span class="block">{{ $child['label'] }}</span>
-                                        <span class="mt-0.5 block truncate font-mono text-xs text-slate-400">{{ $child['slug'] }}</span>
+                                        <span class="mt-0.5 block truncate font-mono text-xs text-slate-400">{{ $child['route_name'] }}</span>
                                     </a>
                                 </li>
                             @endforeach

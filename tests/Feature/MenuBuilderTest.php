@@ -53,6 +53,7 @@ test('menu builder creates updates and deletes menu items', function () {
     $menuItem = MenuItem::query()->where('slug', 'dokumentation')->firstOrFail();
 
     expect($menuItem->label)->toBe('Dokumentation')
+        ->and($menuItem->route_name)->toBe('dokumentation')
         ->and($menuItem->view)->toBe('pages.dynamic')
         ->and($menuItem->is_active)->toBeTrue();
 
@@ -61,6 +62,24 @@ test('menu builder creates updates and deletes menu items', function () {
         ->call('deleteSelectedMenuItem');
 
     expect(MenuItem::query()->whereKey($menuItem->id)->exists())->toBeFalse();
+});
+
+test('menu builder links active selected items in a new window', function () {
+    $this->actingAs(User::factory()->create());
+
+    $menuItem = MenuItem::factory()->create([
+        'label' => 'Dokumentation',
+        'slug' => 'docs',
+        'route_name' => 'docs.index',
+        'view' => 'pages.dynamic',
+        'is_active' => true,
+    ]);
+
+    Livewire::test(MenuBuilder::class)
+        ->call('selectMenuItem', $menuItem->id)
+        ->assertSee('Seite in neuem Fenster öffnen')
+        ->assertSee('target="_blank"', false)
+        ->assertSee('href="'.route('docs.index').'"', false);
 });
 
 test('menu builder validates that blade views exist', function () {
