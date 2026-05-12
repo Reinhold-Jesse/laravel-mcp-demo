@@ -5,10 +5,20 @@
     "description": "The skeleton application for the Laravel framework.",
     "keywords": ["laravel", "framework"],
     "license": "MIT",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "packages/menu-builder",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
     "require": {
         "php": "^8.3",
         "filament/filament": "^5.6",
         "laravel/framework": "^13.0",
+        "laravel-mcp-demo/menu-builder": "dev-main as 1.0.0",
         "laravel/mcp": "*",
         "laravel/tinker": "^3.0",
         "livewire/livewire": "^4.3"

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3302304508854f9ebd3db6af614ea75e",
+    "content-hash": "5ec2de76c39488a15c83f4f1e8a9bc58",
     "packages": [
         {
             "name": "blade-ui-kit/blade-heroicons",
@@ -2018,6 +2018,44 @@
                 "source": "https://github.com/kirschbaum-development/eloquent-power-joins/tree/4.3.1"
             },
             "time": "2026-03-29T12:05:03+00:00"
+        },
+        {
+            "name": "laravel-mcp-demo/menu-builder",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/menu-builder",
+                "reference": "12c830c1ebbe86136d4139b09e97d98b483eca45"
+            },
+            "require": {
+                "filament/filament": "^5.6",
+                "laravel/framework": "^13.0",
+                "livewire/livewire": "^4.3",
+                "php": "^8.3"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "LaravelMcpDemo\\MenuBuilder\\MenuBuilderServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LaravelMcpDemo\\MenuBuilder\\": "src/",
+                    "LaravelMcpDemo\\MenuBuilder\\Database\\Factories\\": "database/factories/",
+                    "LaravelMcpDemo\\MenuBuilder\\Database\\Seeders\\": "database/seeders/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Reusable Filament menu builder for Laravel applications.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
         },
         {
             "name": "laravel/framework",
@@ -11756,9 +11794,18 @@
             "time": "2026-04-11T10:33:05+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "package": "laravel-mcp-demo/menu-builder",
+            "version": "dev-main",
+            "alias": "1.0.0",
+            "alias_normalized": "1.0.0.0"
+        }
+    ],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "laravel-mcp-demo/menu-builder": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
