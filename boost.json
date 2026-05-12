@@ -3,5 +3,16 @@
         "cursor"
     ],
     "cloud": false,
-    "guidelines": true
+    "packages": [
+        "filament/filament"
+    ],
+    "skills": [
+        "frontend-design",
+        "laravel-best-practices",
+        "mcp-development",
+        "livewire-development",
+        "pest-testing",
+        "tailwindcss-development",
+        "ui-ux-pro-max"
+    ]
 }
