@@ -2,12 +2,15 @@
 
 namespace App\Filament\Resources\MenuItems\Pages;
 
+use App\Filament\Resources\Concerns\InteractsWithClusterFullContentWidth;
 use App\Filament\Resources\MenuItems\MenuItemResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListMenuItems extends ListRecords
 {
+    use InteractsWithClusterFullContentWidth;
+
     protected static string $resource = MenuItemResource::class;
 
     protected function getHeaderActions(): array
