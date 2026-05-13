@@ -3,9 +3,12 @@
 namespace LaravelMcpDemo\MenuBuilder;
 
 use Filament\Panel;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\ServiceProvider;
 use LaravelMcpDemo\MenuBuilder\Filament\Pages\MenuBuilder as MenuBuilderPage;
 use LaravelMcpDemo\MenuBuilder\Http\Controllers\DynamicPageController;
@@ -35,6 +38,11 @@ class MenuBuilderServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'menu-builder');
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::SCRIPTS_BEFORE,
+            fn (): HtmlString => new HtmlString(view('menu-builder::scripts.alpine-menu-tree-store')->render()),
+        );
 
         Livewire::component(config('menu-builder.livewire.builder_alias', 'menu-builder.builder'), MenuBuilder::class);
         Livewire::component(config('menu-builder.livewire.navigation_alias', 'menu-builder.navigation'), MenuNavigation::class);

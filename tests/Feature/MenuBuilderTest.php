@@ -148,6 +148,44 @@ test('menu builder reorders items and can move them below another parent', funct
         ->and($first->fresh()->sort_order)->toBe(10);
 });
 
+test('menu builder starts with no selection when menu items already exist', function () {
+    $this->actingAs(User::factory()->create());
+
+    MenuItem::factory()->create([
+        'label' => 'Automatisierung',
+        'slug' => 'automatisierung',
+        'sort_order' => 0,
+    ]);
+
+    Livewire::test(MenuBuilder::class)
+        ->assertSet('selectedMenuItemId', null)
+        ->assertSee('Keine Seite ausgewählt');
+});
+
+test('menu builder page tree uses alpine store for expand and collapse', function () {
+    $this->actingAs(User::factory()->create());
+
+    $parent = MenuItem::factory()->create([
+        'label' => 'Parent Page Tree',
+        'slug' => 'parent-page-tree',
+        'sort_order' => 0,
+    ]);
+
+    MenuItem::factory()->childOf($parent)->create([
+        'label' => 'Child Page Tree Hidden',
+        'slug' => 'parent-page-tree/child',
+        'sort_order' => 10,
+    ]);
+
+    $html = Livewire::test(MenuBuilder::class)->html();
+
+    expect($html)
+        ->toContain('$store.menuBuilderPageTree.configure')
+        ->and($html)->toContain('$store.menuBuilderPageTree.expandAll')
+        ->and($html)->toContain('$store.menuBuilderPageTree.collapseAll')
+        ->and($html)->toContain('$store.menuBuilderPageTree.toggle');
+});
+
 test('menu builder rejects parent cycles', function () {
     $this->actingAs(User::factory()->create());
 

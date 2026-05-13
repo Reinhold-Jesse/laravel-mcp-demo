@@ -2,9 +2,28 @@
     <div class="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(0,8fr)]">
         <section class="min-w-0 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-gray-950 dark:ring-white/10">
             <div class="border-b border-slate-200 bg-slate-50/80 p-4 dark:border-white/10 dark:bg-white/[0.03]">
-                <div>
-                    <p class="font-[Fira_Code] text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-700 dark:text-primary-300">Page Tree</p>
-                    <h3 class="mt-1 text-base font-semibold text-slate-950 dark:text-white">Struktur</h3>
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                        <p class="font-[Fira_Code] text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-700 dark:text-primary-300">Page Tree</p>
+                        <h3 class="mt-1 text-base font-semibold text-slate-950 dark:text-white">Struktur</h3>
+                    </div>
+
+                    <div class="flex shrink-0 flex-wrap gap-2">
+                        <button
+                            type="button"
+                            @click="$store.menuBuilderPageTree.expandAll()"
+                            class="cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-semibold text-primary-700 ring-1 ring-primary-600/20 transition-colors duration-200 hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 motion-reduce:transition-none dark:text-primary-300 dark:ring-primary-400/30 dark:hover:bg-primary-400/10"
+                        >
+                            Alle aufklappen
+                        </button>
+                        <button
+                            type="button"
+                            @click="$store.menuBuilderPageTree.collapseAll()"
+                            class="cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-600 ring-1 ring-slate-200 transition-colors duration-200 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 motion-reduce:transition-none dark:text-slate-300 dark:ring-white/10 dark:hover:bg-white/5"
+                        >
+                            Alle einklappen
+                        </button>
+                    </div>
                 </div>
 
                 <button
@@ -19,7 +38,12 @@
                 </button>
             </div>
 
-            <div class="max-h-[calc(100vh-22rem)] overflow-auto p-4">
+            <div
+                wire:key="menu-builder-page-tree-{{ $selectedMenuItemId ?? 'none' }}-{{ md5(json_encode($pageTreeBranchIdsWithChildren)) }}"
+                class="max-h-[calc(100vh-22rem)] overflow-auto p-4"
+                x-data
+                x-init="$store.menuBuilderPageTree.configure(@js($pageTreeBranchIdsWithChildren), @js($pageTreeAncestorIdsForSelection))"
+            >
                 @include('menu-builder::livewire.menu-builder-tree', [
                     'items' => $menuTree,
                     'parentId' => null,

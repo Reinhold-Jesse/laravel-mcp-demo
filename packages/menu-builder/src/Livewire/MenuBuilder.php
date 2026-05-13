@@ -37,20 +37,19 @@ class MenuBuilder extends Component
     {
         $this->authorizeManageMenu();
 
-        $menuItemId = $this->query()
-            ->orderBy('sort_order')
-            ->orderBy('label')
-            ->value('id');
-
-        $this->selectedMenuItemId = $menuItemId === null ? null : (int) $menuItemId;
-
         $this->loadSelectedMenuItem();
     }
 
     public function render(): View
     {
+        $menuTree = $this->getMenuTree();
+
         return view('menu-builder::livewire.menu-builder', [
-            'menuTree' => $this->getMenuTree(),
+            'menuTree' => $menuTree,
+            'pageTreeBranchIdsWithChildren' => $this->collectMenuItemIdsWithChildren($menuTree),
+            'pageTreeAncestorIdsForSelection' => $this->selectedMenuItemId === null
+                ? []
+                : $this->getAncestorIds($this->selectedMenuItemId),
             'parentOptions' => $this->getParentOptions(),
             'selectedMenuItem' => $this->getSelectedMenuItem(),
         ]);
@@ -537,5 +536,39 @@ class MenuBuilder extends Component
         $modelClass = config('menu-builder.model');
 
         return (new $modelClass)->getTable();
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    private function getAncestorIds(int $menuItemId): array
+    {
+        $ids = [];
+        $parentId = $this->query()->whereKey($menuItemId)->value('parent_id');
+
+        while ($parentId !== null) {
+            $ids[] = (int) $parentId;
+            $parentId = $this->query()->whereKey((int) $parentId)->value('parent_id');
+        }
+
+        return $ids;
+    }
+
+    /**
+     * @param  array<int, array{id: int, children: array<int, mixed>}>  $nodes
+     * @return array<int, int>
+     */
+    private function collectMenuItemIdsWithChildren(array $nodes): array
+    {
+        $ids = [];
+
+        foreach ($nodes as $node) {
+            if ($node['children'] !== []) {
+                $ids[] = $node['id'];
+                $ids = [...$ids, ...$this->collectMenuItemIdsWithChildren($node['children'])];
+            }
+        }
+
+        return $ids;
     }
 }
