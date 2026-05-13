@@ -4,6 +4,7 @@ namespace LaravelMcpDemo\MenuBuilder\Filament\Pages;
 
 use BackedEnum;
 use Filament\Pages\Page;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 
 class MenuBuilder extends Page
@@ -15,4 +16,9 @@ class MenuBuilder extends Page
     protected static ?string $navigationLabel = 'Menü Builder';
 
     protected static ?int $navigationSort = 5;
+
+    public function getMaxContentWidth(): Width|string|null
+    {
+        return Width::Full;
+    }
 }

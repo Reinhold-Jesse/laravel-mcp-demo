@@ -1,19 +1,16 @@
 <div class="font-[Fira_Sans]">
-    <div class="grid gap-4 xl:grid-cols-[minmax(360px,460px)_1fr]">
-        <section class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-gray-950 dark:ring-white/10">
-            <div class="flex items-start justify-between gap-4 border-b border-slate-200 bg-slate-50/80 p-4 dark:border-white/10 dark:bg-white/[0.03]">
+    <div class="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(0,8fr)]">
+        <section class="min-w-0 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-gray-950 dark:ring-white/10">
+            <div class="border-b border-slate-200 bg-slate-50/80 p-4 dark:border-white/10 dark:bg-white/[0.03]">
                 <div>
                     <p class="font-[Fira_Code] text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-700 dark:text-primary-300">Page Tree</p>
                     <h3 class="mt-1 text-base font-semibold text-slate-950 dark:text-white">Struktur</h3>
-                    <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                        Griff ziehen, Zeile klicken, Werte rechts setzen.
-                    </p>
                 </div>
 
                 <button
                     type="button"
                     wire:click="createRootItem"
-                    class="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm shadow-primary-600/20 transition-colors duration-200 hover:bg-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 data-loading:pointer-events-none data-loading:opacity-60 motion-reduce:transition-none dark:focus-visible:ring-offset-gray-950"
+                    class="mt-4 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm shadow-primary-600/20 transition-colors duration-200 hover:bg-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 data-loading:pointer-events-none data-loading:opacity-60 motion-reduce:transition-none dark:focus-visible:ring-offset-gray-950 sm:w-auto sm:justify-start"
                 >
                     <svg class="size-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                         <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
@@ -32,8 +29,8 @@
             </div>
         </section>
 
-        <section class="overflow-hidden dark:bg-gray-950 dark:ring-white/10">
-            <div class="border-b border-slate-200 bg-slate-50/80 p-4 dark:border-white/10 dark:bg-white/[0.03]">
+        <section class="min-w-0 overflow-hidden dark:bg-gray-950 dark:ring-white/10">
+            <div class="w-full max-w-5xl border-b border-slate-200 bg-slate-50/80 p-4 dark:border-white/10 dark:bg-white/[0.03]">
                 <div class="flex flex-wrap items-start justify-between gap-4">
                     <div class="space-y-1">
                         <p class="font-[Fira_Code] text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-700 dark:text-primary-300">Inspector</p>
@@ -79,7 +76,7 @@
             </div>
 
             @if ($selectedMenuItem === null)
-                <div class="grid min-h-80 place-items-center p-4 text-center">
+                <div class="mx-auto grid min-h-80 w-full max-w-5xl place-items-center p-4 text-center">
                     <div class="flex flex-col items-center gap-4">
                         <div class="mx-auto grid size-12 place-items-center rounded-2xl bg-primary-50 text-primary-600 ring-1 ring-primary-600/10 dark:bg-primary-400/10 dark:text-primary-300 dark:ring-primary-400/20">
                             <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
@@ -93,7 +90,7 @@
                     </div>
                 </div>
             @else
-                <form wire:submit="saveSelectedMenuItem" class="p-4 grid grid-cols-1 gap-4">
+                <form wire:submit="saveSelectedMenuItem" class="grid w-full max-w-5xl grid-cols-1 gap-4 p-4">
                     <div class="grid gap-4 lg:grid-cols-2">
                         <label for="menu-item-label" class="space-y-2">
                             <span class="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-1">Titel</span>

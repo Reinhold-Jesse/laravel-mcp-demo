@@ -37,8 +37,8 @@
                     <span class="flex min-w-0 items-center gap-2">
                         <span class="block truncate text-sm font-semibold">{{ $item['label'] }}</span>
                     </span>
-                    <span class="mt-0.5 block truncate font-[Fira_Code] text-[11px] text-slate-500 dark:text-slate-400">{{ $item['slug'] }}</span>
-                    <span class="mt-0.5 block truncate font-[Fira_Code] text-[11px] text-slate-400 dark:text-slate-500">{{ $item['route_name'] }}</span>
+                    {{-- <span class="mt-0.5 block truncate font-[Fira_Code] text-[11px] text-slate-500 dark:text-slate-400">{{ $item['slug'] }}</span>
+                    <span class="mt-0.5 block truncate font-[Fira_Code] text-[11px] text-slate-400 dark:text-slate-500">{{ $item['route_name'] }}</span> --}}
                 </button>
 
                 @if (! $item['is_active'])

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Filament\Support\Enums\Width;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
@@ -18,8 +19,8 @@ test('menu builder page is registered in the dashboard panel', function () {
         ->and(route('filament.dashboard.pages.menu-builder', [], false))->toBe('/dashboard/menu-builder');
 });
 
-test('menu builder page uses the default dashboard content width', function () {
-    expect(app(MenuBuilderPage::class)->getMaxContentWidth())->toBeNull();
+test('menu builder page uses full dashboard content width', function () {
+    expect(app(MenuBuilderPage::class)->getMaxContentWidth())->toBe(Width::Full);
 });
 
 test('menu builder page requires dashboard authentication', function () {
